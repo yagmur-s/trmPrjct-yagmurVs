@@ -1,0 +1,198 @@
+﻿@model IEnumerable<MShop.Models.ViewModels.Shop.ProductVM>
+
+@{
+    ViewBag.Title = "Products";
+}
+
+@using PagedList.Mvc;
+@using PagedList;
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/dashboard" class="navbar-brand">Dashboard</a>
+        </div>
+            @foreach (var item in ViewBag.Categories)
+            {
+                <ul class="nav navbar-nav">
+                    <ul>
+                        <li><a href="" class="navbar-brand" id="selectedCat">@item.Text</a></li>
+                    </ul>
+                </ul>
+            }
+        <a href="" class="navbar-brand" id="login">TICKETS</a>
+
+        </div>
+    </div>
+</div>
+<h2>Products</h2>
+<form action="shop/Products" method="GET">
+    <select id="SelectCategory" name="SelectCategory">
+    <option value="0">All Categories</option>
+    @foreach (var item in ViewBag.Categories)
+    {
+        if (ViewBag.SelectedCat == item.Value)
+        {
+            <option id="selectedCat" selected="selected" value="@item.Value">@item.Text</option>
+        }
+        else
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+</select>
+
+
+<select id="SelectDate" name="SelectDate">
+    <option value="0">All Time Periods</option>
+    @foreach (var item in ViewBag.TimePeriods)
+    {
+        if (ViewBag.SelectedTimePeriod == item.Value)
+        {
+            <option id="selectedTimePeriod" selected="selected" value="@item.Value">@item.Text</option>
+        }
+        else
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+</select>
+
+<select id="SelectCity" name="SelectCity">
+    <option value="0">All Cities</option>
+    @foreach (var item in ViewBag.Cities)
+    {
+        if (ViewBag.SelectedCity == item.Value)
+        {
+            <option id="selectedCity" selected="selected" value="@item.Value">@item.Text</option>
+        }
+        else
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+</select></form>
+
+<div class="col-md-offset-2 col-md-10">
+    <input type="submit" value="GO!" class="btn btn-default" onclick="makeFilterSearch();"/>
+
+</div>
+<br /><br />
+
+<p>
+    @Html.ActionLink("Add New ", "AddProduct")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            Activity Name
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            Price
+        </th>
+        <th>
+            Image Name
+        </th>
+        <th>
+            Date
+        </th>
+    </tr>
+
+    @foreach (var product in ViewBag.OnePageOfProducts)
+    {
+        <tr>
+            <td>
+                @product.Name
+            </td>
+            <td>
+                @product.Description
+            </td>
+            <td>
+                $@product.Price
+            </td>
+            <td>
+                $@product.Date
+            </td>
+            <td>
+                <a href="/admin/shop/EditProduct/@product.Id">
+                    <img src="/Images/Uploads/Products/@product.Id/Thumbs/@product.ImageName" />
+                </a>
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditProduct", new { id = product.Id }) |
+                @Html.ActionLink("Delete", "DeleteProduct", new { id = product.Id }, new { @class = "delete" } )
+            </td>
+        </tr>
+    }
+
+</table>
+
+@Html.PagedListPager((IPagedList)ViewBag.OnePageOfProducts, page => Url.Action("Products", new { page, catId = ViewBag.SelectedCat,timePeriodId=ViewBag.SelectedTimePeriod,cityId=ViewBag.SelectedCity }))
+
+
+
+@section Scripts {
+    <script src="http://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <script>
+
+$(function () {
+
+    /*
+    * Select products from specified category
+    */
+
+    $("#SelectCategory").on("change", function () {
+        var url = $(this).val();
+        //var selectedPlace = document.getElementById("selectedCity");
+        var selectedCat = document.getElementById("selectedCategory");
+
+        if (url) {
+                window.location = "/shop/Products?catId=" + url;
+            //if (selectedCity != null)
+            //    window.location = "/shop/Products?catId=" + url + "&cityId=" + selectedPlace;
+            //else
+            //    window.location = "/shop/Products?catId=" + url;
+        }
+
+        return false;
+    });
+
+    //////////////////////////////////////////////////////////////
+    $("#SelectDate").on("change", function () {
+        var url = $(this).val();
+        if (url) {
+            window.location = "/shop/Products?timePeriodId=" + url;
+        }
+        return false;
+    });
+
+
+    $("#SelectCity").on("change", function () {
+        var url = $(this).val();
+        if (url) {
+                window.location = "/shop/Products?cityId=" + url;
+        }
+        return false;
+    });
+    /*
+    * Confirm product deletion
+    */
+
+    $("a.delete").click(function () {
+
+        if (!confirm("Confirm product deletion")) return false;
+        else return true;
+    });
+
+    //////////////////////////////////////////////////////////////
+
+});
+    </script>
+}
